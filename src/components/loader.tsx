@@ -1,6 +1,6 @@
 import { keyframes, styled } from 'styled-components';
 
-const animate = (circleLen) => keyframes`
+const animate = (circleLen: number) => keyframes`
   0%,100%
   {
     stroke-dashoffset: ${circleLen};
@@ -26,14 +26,14 @@ const rotate = keyframes`
   }  
 `;
 
-const SVG = styled.svg`
+const SVG = styled.svg<{ visible: boolean }>`
   width: ${(props) => props.width};
   height: ${(props) => props.height};
   animation: ${rotate} 2s linear infinite;
   visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
 `;
 
-const Circle = styled.circle`
+const Circle = styled.circle<{ circleLen: number; padding: number }>`
   fill: none;
   stroke-width: ${(props) => props.strokeWidth};
   stroke-linecap: round;
