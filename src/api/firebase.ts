@@ -1,6 +1,5 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
 import {
   GithubAuthProvider,
   GoogleAuthProvider,
@@ -40,7 +39,7 @@ export const createAccount = async (email: string, password: string) => {
 };
 
 export const onUserStateChange = (
-  callback: React.Dispatch<React.SetStateAction<undefined>>
+  callback: React.Dispatch<React.SetStateAction<FirebaseUser | null>>
 ) => {
   // onAuthStateChanged 함수는 유저정보가 변하면 등록된 콜백함수를 자동으로 실행한다.
   onAuthStateChanged(auth, async (user) => {
@@ -50,6 +49,7 @@ export const onUserStateChange = (
 };
 
 export const updateUserProfile = async (name: string) => {
+  if (auth.currentUser === null) return;
   await updateProfile(auth.currentUser, {
     displayName: name,
   });

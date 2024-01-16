@@ -35,6 +35,11 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
+      - name: Generate Environment Variables File for Production
+        run: |
+          echo "VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY" >> .env
+        env:
+          VITE_FIREBASE_API_KEY: ${{secrets.VITE_FIREBASE_API_KEY}}
       - name: Install dependencies
         run: npm install
       - name: Build

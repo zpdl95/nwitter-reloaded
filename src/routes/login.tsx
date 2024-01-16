@@ -143,10 +143,6 @@ const Form = styled.form`
   }
 `;
 
-const errors = {
-  'auth/email-already-in-use': '이미 사용중인 이메일 입니다.',
-};
-
 export default function Login() {
   const navigate = useNavigate();
   const [isLoading, setLoading] = useState(false);
@@ -193,7 +189,7 @@ export default function Login() {
   };
 
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { target } = e;
+    const target = e.target as HTMLDivElement;
     if (target.matches('.close')) {
       navigate(-1);
     }
