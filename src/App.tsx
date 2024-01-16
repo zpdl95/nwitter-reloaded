@@ -12,42 +12,47 @@ import LoadingScreen from './components/loading-screen';
 import ProtectedRoute from './components/protected-route';
 import Layout from './components/layout';
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <Root />,
+      children: [
+        {
+          path: '',
+          element: <Home />,
+          children: [
+            {
+              path: 'login',
+              element: <Login />,
+            },
+            {
+              path: 'signup',
+              element: <Signup />,
+            },
+          ],
+        },
+        {
+          path: 'main',
+          element: (
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          ),
+          children: [
+            {
+              path: '',
+              element: <Main />,
+            },
+          ],
+        },
+      ],
+    },
+  ],
   {
-    path: '/',
-    element: <Root />,
-    children: [
-      {
-        path: '',
-        element: <Home />,
-        children: [
-          {
-            path: 'login',
-            element: <Login />,
-          },
-          {
-            path: 'signup',
-            element: <Signup />,
-          },
-        ],
-      },
-      {
-        path: 'main',
-        element: (
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        ),
-        children: [
-          {
-            path: '',
-            element: <Main />,
-          },
-        ],
-      },
-    ],
-  },
-]);
+    basename: import.meta.env.BASE_URL,
+  }
+);
 
 const GlobalStyles = createGlobalStyle`
   ${reset};
