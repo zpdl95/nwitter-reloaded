@@ -1,7 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { css, styled } from 'styled-components';
-import GithubBtn from '../components/github-btn';
-import GoogleBtn from '../components/google-btn';
+import { GithubBtn, GoogleBtn } from '../components';
 
 export const btnStyle = css`
   outline: none;

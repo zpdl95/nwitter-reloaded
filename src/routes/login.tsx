@@ -1,13 +1,10 @@
+import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { btnStyle } from './home';
-import Loader from '../components/loader';
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
 import { loginWithEmailAndPassword } from '../api/firebase';
-import GithubBtn from '../components/github-btn';
-import GoogleBtn from '../components/google-btn';
-import ResetPasswordBtn from '../components/resetPassword-btn';
+import { GithubBtn, GoogleBtn, Loader, ResetPasswordBtn } from '../components';
 
 const inputStyle = css`
   background-color: inherit;

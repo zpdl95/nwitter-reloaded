@@ -1,10 +1,10 @@
 import styled, { css } from 'styled-components';
 import { btnStyle } from './home';
-import Loader from '../components/loader';
 import React, { useState } from 'react';
 import { createAccount, updateUserProfile } from '../api/firebase';
 import { useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
+import { Loader } from '../components';
 
 const inputStyle = css`
   background-color: inherit;
@@ -264,8 +264,8 @@ export default function Signup() {
     }
   };
 
-  const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLDivElement;
+  const onClick = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
+    const target = e.target as HTMLDivElement | HTMLButtonElement;
     if (target.matches('.close')) {
       navigate(-1);
     }

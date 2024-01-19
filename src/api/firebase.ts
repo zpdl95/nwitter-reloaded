@@ -12,6 +12,28 @@ import {
   updateProfile,
   User as FirebaseUser,
 } from 'firebase/auth';
+import {
+  DocumentReference,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getFirestore,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+} from 'firebase/firestore';
+import {
+  StorageReference,
+  deleteObject,
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+} from 'firebase/storage';
+import { ITweet } from '../components/timeline';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -31,6 +53,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 
+// 인증 관련
 export const auth = getAuth(app);
 const githubProvider = new GithubAuthProvider();
 const googleProvider = new GoogleAuthProvider();
@@ -77,4 +100,93 @@ export const loginWithGoogle = async () => {
 
 export const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
+};
+
+// 스토리지 관련
+const storage = getStorage(app);
+
+export const fileUpload = async ({
+  userId,
+  // username,
+  docId,
+  file,
+}: {
+  userId: string;
+  username: string;
+  docId: string;
+  file: File;
+}) => {
+  const locationRef = ref(storage, `tweets/${userId}/${docId}`);
+  return await uploadBytes(locationRef, file);
+};
+
+export const getFileURL = async (ref: StorageReference) => {
+  return await getDownloadURL(ref);
+};
+
+export const deleteFile = async ({
+  userId,
+  id,
+}: {
+  userId: string;
+  id: string;
+}) => {
+  const photoRef = ref(storage, `tweets/${userId}/${id}`);
+  await deleteObject(photoRef);
+};
+
+// 데이터 베이스 관련
+const database = getFirestore(app);
+
+export const createTweet = async (tweet: {
+  tweet: string;
+  createdAt: Date;
+  username: string;
+  userId: string;
+}) => {
+  return await addDoc(collection(database, 'tweets'), tweet);
+};
+
+export const updateTweet = async ({
+  doc,
+  url,
+}: {
+  doc: DocumentReference;
+  url: string;
+}) => {
+  await updateDoc(doc, {
+    photo: url,
+  });
+};
+
+export const deleteTweet = async (id: string) => {
+  await deleteDoc(doc(database, 'tweets', id));
+};
+
+export const fetchTweets = async (
+  callback: React.Dispatch<React.SetStateAction<ITweet[]>>
+) => {
+  const tweetsQuery = query(
+    collection(database, 'tweets'),
+    orderBy('createdAt', 'desc'),
+    limit(25) // 25개로 가져오는 트윗 제한
+  );
+  // const snapshot = await getDocs(tweetsQuery);
+  // const tweets = snapshot.docs.map((doc) => {
+  //   const { tweet, createdAt, userId, username, photo } = doc.data();
+  //   return { tweet, createdAt, userId, username, photo, id: doc.id };
+  // });
+
+  // 데이터가 변경되면 콜백함수를 자동으로 실행 시켜줌
+  // 실시간으로 변경됨
+  const unsubscribe = onSnapshot(tweetsQuery, (snapshot) => {
+    const tweets = snapshot.docs.map((doc) => {
+      const { tweet, createdAt, userId, username, photo } = doc.data();
+      return { tweet, createdAt, userId, username, photo, id: doc.id };
+    });
+
+    callback(tweets);
+  });
+
+  return unsubscribe;
 };

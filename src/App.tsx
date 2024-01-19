@@ -3,14 +3,17 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components';
 import reset from 'styled-reset';
 import { auth } from './api/firebase';
-import Home from './routes/home';
-import Login from './routes/login';
-import Signup from './routes/signup';
-import Main from './routes/main';
-import Root from './routes/root';
-import LoadingScreen from './components/loading-screen';
-import ProtectedRoute from './components/protected-route';
-import Layout from './components/layout';
+import { Layout, LoadingScreen } from './components/index';
+import {
+  Home,
+  Login,
+  Main,
+  Profile,
+  Root,
+  Signup,
+  PostTweetForm,
+  EditTweetForm,
+} from './routes';
 
 const router = createBrowserRouter(
   [
@@ -35,14 +38,28 @@ const router = createBrowserRouter(
         {
           path: 'main',
           element: (
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
+            // <ProtectedRoute>
+            // </ProtectedRoute>
+            <Layout />
           ),
           children: [
             {
               path: '',
               element: <Main />,
+              children: [
+                {
+                  path: 'post',
+                  element: <PostTweetForm />,
+                },
+                {
+                  path: 'edit',
+                  element: <EditTweetForm />,
+                },
+              ],
+            },
+            {
+              path: 'profile',
+              element: <Profile />,
             },
           ],
         },
@@ -67,12 +84,18 @@ const GlobalStyles = createGlobalStyle`
     --font-color:#FFF7FF;
     --accent-color:#B711FF;
     --shadow-color:#A487AE;
+    --shadow-l-color:hsl(284.61538461538464, 19.40298507462687%, 75.58823529411765%);
+    --shadow-d-color:hsl(284.61538461538464, 19.40298507462687%, 50.58823529411765%);
   }
   body
   {
     background-color:var(--main-color);
     color:var(--font-color);
     font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  :where(img,video){
+    max-width:100%;
+    height:auto;
   }
 `;
 
