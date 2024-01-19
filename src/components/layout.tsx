@@ -177,32 +177,32 @@ export default function Layout() {
               </Link>
             </li>
             <li>
-              <Link>
+              <Link to={''}>
                 <IoSearch /> <h3>탐색하기</h3>
               </Link>
             </li>
             <li>
-              <Link>
+              <Link to={''}>
                 <FaRegBell /> <h3>알림</h3>
               </Link>
             </li>
             <li>
-              <Link>
+              <Link to={''}>
                 <MdOutlineEmail /> <h3>쪽지</h3>
               </Link>
             </li>
             <li>
-              <Link>
+              <Link to={''}>
                 <RiFileList2Line /> <h3>리스트</h3>
               </Link>
             </li>
             <li>
-              <Link>
+              <Link to={''}>
                 <FaRegBookmark /> <h3>북마크</h3>
               </Link>
             </li>
             <li>
-              <Link>
+              <Link to={''}>
                 <RiHome7Fill /> <h3>Premium</h3>
               </Link>
             </li>
