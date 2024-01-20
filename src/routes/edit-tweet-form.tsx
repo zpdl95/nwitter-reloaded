@@ -5,7 +5,8 @@ import { AiOutlinePicture } from 'react-icons/ai';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import {
-  createTweet,
+  addOrUpdatePhotoToTweet,
+  deleteFile,
   fileUpload,
   getFileURL,
   updateTweet,
@@ -177,6 +178,7 @@ export default function EditTweetForm() {
   const [isLoading, setLoading] = useState(false);
   const [tweet, setTweet] = useState(state.tweet);
   const [file, setFile] = useState<File | null>(null);
+  const [fileURL, setFileURL] = useState(state.photo);
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
@@ -201,6 +203,7 @@ export default function EditTweetForm() {
       return;
     }
     setFile(files[0]);
+    setFileURL(URL.createObjectURL(files[0]));
     e.target.value = '';
   };
 
@@ -214,26 +217,31 @@ export default function EditTweetForm() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!user || isLoading || tweet === '' || tweet.length > 180) return;
+    if (!user || isLoading || tweet === '' || tweet.length > 180 || !state.id)
+      return;
 
     try {
       setLoading(true);
-      const doc = await createTweet({
+      await updateTweet({
+        id: state.id,
         tweet,
-        createdAt: new Date(),
-        username: user.displayName || 'Anonymous',
-        userId: user.uid,
+        createdAt: Date.now(),
       });
+
+      if (!fileURL) {
+        await addOrUpdatePhotoToTweet({ id: state.id, url: '' });
+        await deleteFile({ userId: state.userId, id: state.id });
+      }
 
       if (file) {
         const result = await fileUpload({
-          docId: doc.id,
+          docId: state.id,
           file,
-          userId: user.uid,
-          username: user.displayName || 'Anonymous',
+          userId: state.userId,
+          username: state.username,
         });
         const url = await getFileURL(result.ref);
-        await updateTweet({ doc, url });
+        await addOrUpdatePhotoToTweet({ id: state.id, url });
       }
 
       navigate(-1);
@@ -244,8 +252,9 @@ export default function EditTweetForm() {
     }
   };
 
-  const onImgDelete = () => {
+  const onImgDelete = async () => {
     setFile(null);
+    setFileURL(undefined);
   };
 
   return (
@@ -273,9 +282,9 @@ export default function EditTweetForm() {
             onInput={onInput}
             onChange={onChange}
           />
-          {file && (
+          {fileURL && (
             <figure>
-              <img src={URL.createObjectURL(file)} alt={file.name} />
+              <img src={fileURL} />
               <button type='button' onClick={onImgDelete}>
                 &#10006;
               </button>

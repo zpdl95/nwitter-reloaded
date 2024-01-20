@@ -8,7 +8,7 @@ import {
   createTweet,
   fileUpload,
   getFileURL,
-  updateTweet,
+  addOrUpdatePhotoToTweet,
 } from '../api/firebase';
 import { useAuthContext } from '../context/auth-context';
 
@@ -175,6 +175,7 @@ export default function PostTweetForm() {
   const [isLoading, setLoading] = useState(false);
   const [tweet, setTweet] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [fileURL, setFileURL] = useState<string>();
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
@@ -199,6 +200,7 @@ export default function PostTweetForm() {
       return;
     }
     setFile(files[0]);
+    setFileURL(URL.createObjectURL(files[0]));
     e.target.value = '';
   };
 
@@ -218,7 +220,7 @@ export default function PostTweetForm() {
       setLoading(true);
       const doc = await createTweet({
         tweet,
-        createdAt: new Date(),
+        createdAt: Date.now(),
         username: user.displayName || 'Anonymous',
         userId: user.uid,
       });
@@ -231,7 +233,7 @@ export default function PostTweetForm() {
           username: user.displayName || 'Anonymous',
         });
         const url = await getFileURL(result.ref);
-        await updateTweet({ doc, url });
+        await addOrUpdatePhotoToTweet({ docRef: doc, url });
       }
 
       navigate(-1);
@@ -244,6 +246,7 @@ export default function PostTweetForm() {
 
   const onImgDelete = () => {
     setFile(null);
+    setFileURL(undefined);
   };
 
   return (
@@ -271,9 +274,9 @@ export default function PostTweetForm() {
             onInput={onInput}
             onChange={onChange}
           />
-          {file && (
+          {fileURL && (
             <figure>
-              <img src={URL.createObjectURL(file)} alt={file.name} />
+              <img src={fileURL} />
               <button type='button' onClick={onImgDelete}>
                 &#10006;
               </button>

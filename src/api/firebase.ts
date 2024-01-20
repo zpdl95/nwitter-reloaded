@@ -138,24 +138,43 @@ export const deleteFile = async ({
 // 데이터 베이스 관련
 const database = getFirestore(app);
 
-export const createTweet = async (tweet: {
-  tweet: string;
-  createdAt: Date;
-  username: string;
-  userId: string;
-}) => {
+export const createTweet = async (tweet: ITweet) => {
   return await addDoc(collection(database, 'tweets'), tweet);
 };
 
-export const updateTweet = async ({
-  doc,
+export const addOrUpdatePhotoToTweet = async ({
+  docRef,
   url,
+  id,
 }: {
-  doc: DocumentReference;
+  docRef?: DocumentReference;
   url: string;
+  id?: string;
 }) => {
-  await updateDoc(doc, {
-    photo: url,
+  if (docRef) {
+    await updateDoc(docRef, {
+      photo: url,
+    });
+  } else if (id) {
+    await updateDoc(doc(database, 'tweets', id), {
+      photo: url,
+    });
+  }
+};
+
+export const updateTweet = async ({
+  id,
+  tweet,
+  createdAt,
+}: {
+  id: string;
+  tweet: string;
+  createdAt: number;
+}) => {
+  if (!id) return;
+  await updateDoc(doc(database, 'tweets', id), {
+    tweet,
+    createdAt,
   });
 };
 
@@ -171,6 +190,8 @@ export const fetchTweets = async (
     orderBy('createdAt', 'desc'),
     limit(25) // 25개로 가져오는 트윗 제한
   );
+
+  // 1번만 실행되는 getDocs
   // const snapshot = await getDocs(tweetsQuery);
   // const tweets = snapshot.docs.map((doc) => {
   //   const { tweet, createdAt, userId, username, photo } = doc.data();

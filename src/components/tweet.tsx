@@ -114,7 +114,7 @@ export default function Tweet({
     e.stopPropagation();
     const target = e.target as HTMLUListElement;
 
-    if (target.matches('.delete') && user?.uid === userId) {
+    if (target.matches('.delete') && user?.uid === userId && id !== undefined) {
       try {
         await deleteTweet(id);
         if (photo) {
@@ -152,8 +152,8 @@ export default function Tweet({
             <span>{userId.slice(0, 10)}</span>
             <span>·</span>
             <span>
-              {new Date(createdAt.seconds).getMonth() + 1}월
-              {new Date(createdAt.seconds).getDate() - 1}일
+              {new Date(createdAt).getMonth() + 1}월
+              {new Date(createdAt).getDate()}일
             </span>
           </div>
           {user?.uid === userId && (

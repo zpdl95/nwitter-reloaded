@@ -4,14 +4,12 @@ import Tweet from './tweet';
 import { Unsubscribe } from 'firebase/firestore';
 
 export interface ITweet {
-  id: string;
-  photo: string;
+  id?: string;
+  photo?: string;
   tweet: string;
   userId: string;
   username: string;
-  createdAt: {
-    seconds: number;
-  };
+  createdAt: number;
 }
 
 export default function Timeline() {
