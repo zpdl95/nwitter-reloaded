@@ -60,6 +60,12 @@ const router = createBrowserRouter(
             {
               path: 'profile',
               element: <Profile />,
+              children: [
+                {
+                  path: 'post',
+                  element: <PostTweetForm />,
+                },
+              ],
             },
           ],
         },
@@ -83,16 +89,27 @@ const GlobalStyles = createGlobalStyle`
     --main-color:#3C2944;
     --font-color:#FFF7FF;
     --accent-color:#B711FF;
+    --accent-color-50:#B711FF50;
     --shadow-color:#A487AE;
     --shadow-l-color:hsl(284.61538461538464, 19.40298507462687%, 75.58823529411765%);
     --shadow-d-color:hsl(284.61538461538464, 19.40298507462687%, 50.58823529411765%);
+    --shadow-d-color-30:hsla(284.61538461538464, 19.40298507462687%, 50.58823529411765%, 0.3);
   }
+
+html,body
+{
+  width:100%;
+  height:100%;
+  overflow-x: hidden;
+}
+
   body
   {
     background-color:var(--main-color);
     color:var(--font-color);
     font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
+
   :where(img,video){
     max-width:100%;
     height:auto;

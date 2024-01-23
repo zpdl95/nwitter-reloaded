@@ -4,6 +4,7 @@ import { Avatar } from '../components';
 import { AiOutlinePicture } from 'react-icons/ai';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Timeline from '../components/timeline';
+import { useAuthContext } from '../context/auth-context';
 
 const Header = styled.header`
   display: flex;
@@ -112,6 +113,7 @@ const FormFooter = styled.footer`
 `;
 
 export default function Main() {
+  const { user } = useAuthContext();
   const navigate = useNavigate();
 
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -134,7 +136,10 @@ export default function Main() {
       </Header>
       <Form onClick={onClick}>
         <FormBody>
-          <Avatar name={'A'} />
+          <Avatar
+            name={user?.displayName?.slice(0, 1) ?? 'A'}
+            src={user?.photoURL}
+          />
           <textarea
             rows={1}
             placeholder='무슨 일이 일어나고 있나요?'

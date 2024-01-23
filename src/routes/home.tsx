@@ -1,7 +1,9 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { css, styled } from 'styled-components';
 import { GithubBtn, GoogleBtn } from '../components';
+import Logo from '../../public/z-icon.svg?react';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const btnStyle = css`
   outline: none;
   border: none;
@@ -24,7 +26,16 @@ const Main = styled.main`
   grid-template-columns: repeat(2, 1fr);
 `;
 
-const Logo = styled.figure``;
+const LogoFig = styled.figure`
+  margin-top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  svg {
+    color: var(--font-color);
+  }
+`;
 
 const Section = styled.section`
   margin-top: 180px;
@@ -107,7 +118,9 @@ export default function Home() {
   return (
     <>
       <Main>
-        <Logo></Logo>
+        <LogoFig>
+          <Logo />
+        </LogoFig>
         <Section>
           <h1>지금 일어나고 있는 일</h1>
           <h2>지금 가입하세요</h2>

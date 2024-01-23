@@ -12,7 +12,7 @@ export default function GoogleBtn() {
     }
   };
   return (
-    <button data-icon onClick={onClick}>
+    <button data-icon onClick={onClick} type='button'>
       <img
         src='https://cdn-icons-png.flaticon.com/512/2875/2875404.png'
         width='20'

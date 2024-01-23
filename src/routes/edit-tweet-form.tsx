@@ -223,7 +223,7 @@ export default function EditTweetForm() {
     try {
       setLoading(true);
       await updateTweet({
-        id: state.id,
+        tweetId: state.id,
         tweet,
         createdAt: Date.now(),
       });
@@ -268,7 +268,10 @@ export default function EditTweetForm() {
         </FormHeader>
         <FormBody>
           <div>
-            <Avatar name='안' />
+            <Avatar
+              name={user?.displayName?.slice(0, 1) ?? 'A'}
+              src={user?.photoURL}
+            />
             <select>
               <option value='all'>모든사람</option>
             </select>

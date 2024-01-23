@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
 import { loginWithEmailAndPassword } from '../api/firebase';
 import { GithubBtn, GoogleBtn, Loader, ResetPasswordBtn } from '../components';
+import Logo from '../../public/z-icon.svg?react';
 
 const inputStyle = css`
   background-color: inherit;
@@ -46,6 +47,14 @@ const Article = styled.article`
     h1 {
       font-size: 1.8rem;
       font-weight: 600;
+
+      display: flex;
+      align-items: center;
+
+      svg {
+        width: 2rem;
+        height: 2rem;
+      }
     }
 
     button {
@@ -196,7 +205,9 @@ export default function Login() {
     <Wrapper className='close' onClick={onClick}>
       <Article>
         <header>
-          <h1>𝕏에 로그인 하세요</h1>
+          <h1>
+            <Logo />에 로그인 하세요
+          </h1>
           <button className='close'>&#10006;</button>
         </header>
         <Form onSubmit={onSubmit}>

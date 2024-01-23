@@ -7,6 +7,7 @@ import { MdOutlineEmail } from 'react-icons/md';
 import { FaRegBookmark, FaRegUser } from 'react-icons/fa';
 import { CgMoreO } from 'react-icons/cg';
 import { btnStyle } from '../routes/home';
+import Logo from '../../public/z-icon.svg?react';
 
 const Wrapper = styled.div`
   max-width: 68%;
@@ -27,10 +28,31 @@ const Wrapper = styled.div`
 
 const Nav = styled.nav`
   padding-right: 3rem;
+
+  & > a {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    padding: 0.3rem;
+    margin: 1rem;
+    margin-left: 0rem;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+      background: var(--shadow-color);
+    }
+  }
+
   ul {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+
     li {
       a,
       button {
@@ -156,20 +178,18 @@ export default function Layout() {
   const navigate = useNavigate();
 
   const onPost = () => {
-    navigate('post');
+    navigate('./post', {
+      relative: 'path',
+    });
   };
+
   return (
     <>
       <Wrapper>
         <Nav>
-          <svg style={{ width: '150px', height: '100px' }}>
-            <circle
-              r={30}
-              cx={30}
-              cy={30}
-              style={{ transform: 'translate(5px,5px)' }}
-            />
-          </svg>
+          <Link to='/main'>
+            <Logo />
+          </Link>
           <ul>
             <li>
               <Link to={'/main'}>

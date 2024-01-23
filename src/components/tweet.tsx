@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 const List = styled.li`
   display: flex;
   gap: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 1rem;
   border-bottom: 1px;
   border-style: solid;
   border-color: var(--shadow-d-color);
@@ -89,6 +89,11 @@ const ListSection = styled.section`
     color: var(--font-color);
     padding: 1rem 0.3rem;
   }
+
+  figure {
+    border-radius: 1.5rem;
+    overflow: hidden;
+  }
 `;
 
 export default function Tweet({
@@ -142,14 +147,14 @@ export default function Tweet({
   return (
     <List>
       <figure>
-        <Avatar name={username[0]} />
+        <Avatar name={username[0]} src={user?.photoURL} />
       </figure>
       <ListSection>
         <header>
           <div>
-            <h3>{username}</h3>
+            <h3>{user?.displayName}</h3>
             <HiShieldCheck />
-            <span>{userId.slice(0, 10)}</span>
+            <span>{userId.slice(0, 8)}</span>
             <span>·</span>
             <span>
               {new Date(createdAt).getMonth() + 1}월

@@ -103,15 +103,16 @@ const FormBody = styled.section`
   }
 
   figure {
-    position: relative;
     border-radius: 1.5rem;
     overflow: hidden;
     margin-left: 3rem;
     margin-bottom: 1rem;
+    max-height: 24rem;
+
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    max-height: 24rem;
 
     img {
       object-fit: cover;
@@ -260,7 +261,10 @@ export default function PostTweetForm() {
         </FormHeader>
         <FormBody>
           <div>
-            <Avatar name='안' />
+            <Avatar
+              name={user?.displayName?.slice(0, 1) ?? 'A'}
+              src={user?.photoURL}
+            />
             <select>
               <option value='all'>모든사람</option>
             </select>

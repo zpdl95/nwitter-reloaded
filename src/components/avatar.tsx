@@ -20,6 +20,12 @@ const Figure = styled.figure`
   }
 `;
 
-export default function Avatar({ name, src }: { name: string; src?: string }) {
+export default function Avatar({
+  name,
+  src,
+}: {
+  name: string;
+  src?: string | null;
+}) {
   return <Figure>{src ? <img src={src} /> : <h4>{name}</h4>}</Figure>;
 }
