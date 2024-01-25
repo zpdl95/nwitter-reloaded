@@ -241,7 +241,7 @@ export default function EditTweetForm() {
         createdAt: Date.now(),
       });
 
-      if (!fileURL) {
+      if (fileURL === '') {
         await updateTweet({
           tweetId: state.tweetId,
           photo: '',
@@ -275,7 +275,7 @@ export default function EditTweetForm() {
 
   const onImgDelete = async () => {
     setFile(null);
-    setFileURL(undefined);
+    setFileURL('');
   };
 
   return (
