@@ -202,7 +202,6 @@ export default function EditTweetForm() {
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
-    console.log(file);
 
     if (!files || files.length !== 1) return;
     if (files[0].size > 1048576) {
@@ -243,7 +242,11 @@ export default function EditTweetForm() {
       });
 
       if (!fileURL) {
-        await updateTweet({ tweetId: state.tweetId, photo: '' });
+        await updateTweet({
+          tweetId: state.tweetId,
+          photo: '',
+          createdAt: Date.now(),
+        });
         await deleteFile({ userId: state.userId, tweetId: state.tweetId });
       }
 
@@ -255,7 +258,11 @@ export default function EditTweetForm() {
           username: state.username,
         });
         const url = await getFileURL(result.ref);
-        await updateTweet({ tweetId: state.tweetId, photo: url });
+        await updateTweet({
+          tweetId: state.tweetId,
+          photo: url,
+          createdAt: Date.now(),
+        });
       }
 
       navigate(-1);

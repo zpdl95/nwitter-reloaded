@@ -1,14 +1,13 @@
 import React from 'react';
-import { useAuthContext } from '../context/auth-context';
 import { Navigate } from 'react-router-dom';
+import { auth } from '../api/firebase';
 
 export default function ProtectedRoute({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAuthContext();
-  console.log(user);
+  const user = auth.currentUser;
 
   if (user === null) {
     return <Navigate to={'/'} />;

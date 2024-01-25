@@ -16,6 +16,7 @@ import {
   addDoc,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getFirestore,
   limit,
@@ -158,8 +159,13 @@ export const getBGURL = async ({
 }) => {
   if (!userId) return;
   const locationRef = ref(storage, `user-bgs/${userId}`);
-  const URL = await getDownloadURL(locationRef);
-  callback(URL);
+
+  try {
+    const URL = await getDownloadURL(locationRef);
+    callback(URL);
+  } catch (e) {
+    callback('');
+  }
 };
 
 export const getFileURL = async (ref: StorageReference) => {
@@ -214,6 +220,11 @@ export const updateTweet = async ({
   if (photo && createdAt) {
     await updateDoc(doc(database, 'tweets', tweetId), {
       photo,
+      createdAt,
+    });
+  } else if (photo === '' && createdAt) {
+    await updateDoc(doc(database, 'tweets', tweetId), {
+      photo: deleteField(),
       createdAt,
     });
   }
