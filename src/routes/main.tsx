@@ -51,6 +51,11 @@ const FormBody = styled.section`
   display: flex;
   align-items: center;
 
+  & > figure {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+
   textarea {
     flex: 1;
     outline: none;
@@ -136,10 +141,12 @@ export default function Main() {
       </Header>
       <Form onClick={onClick}>
         <FormBody>
-          <Avatar
-            name={user?.displayName?.slice(0, 1) ?? 'A'}
-            src={user?.photoURL}
-          />
+          <figure>
+            <Avatar
+              name={user?.displayName?.slice(0, 1) ?? 'A'}
+              src={user?.photoURL}
+            />
+          </figure>
           <textarea
             rows={1}
             placeholder='무슨 일이 일어나고 있나요?'

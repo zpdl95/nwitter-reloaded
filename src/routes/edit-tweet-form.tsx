@@ -5,7 +5,6 @@ import { AiOutlinePicture } from 'react-icons/ai';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import {
-  addOrUpdatePhotoToTweet,
   deleteFile,
   fileUpload,
   getFileURL,
@@ -67,10 +66,15 @@ const FormBody = styled.section`
   flex-direction: column;
   padding: 0 0.5rem;
 
-  div {
+  & > div {
     display: flex;
     align-items: start;
     gap: 1rem;
+
+    & > figure {
+      width: 2.7rem;
+      height: 2.7rem;
+    }
 
     select {
       background: transparent;
@@ -104,7 +108,7 @@ const FormBody = styled.section`
     }
   }
 
-  figure {
+  & > figure {
     position: relative;
     border-radius: 1.5rem;
     overflow: hidden;
@@ -170,6 +174,10 @@ const FormFooter = styled.footer`
   button {
     ${btnStyle}
     background: var(--accent-color);
+
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 `;
 
@@ -217,31 +225,37 @@ export default function EditTweetForm() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!user || isLoading || tweet === '' || tweet.length > 180 || !state.id)
+    if (
+      !user ||
+      isLoading ||
+      tweet === '' ||
+      tweet.length > 180 ||
+      !state.tweetId
+    )
       return;
 
     try {
       setLoading(true);
       await updateTweet({
-        tweetId: state.id,
+        tweetId: state.tweetId,
         tweet,
         createdAt: Date.now(),
       });
 
       if (!fileURL) {
-        await addOrUpdatePhotoToTweet({ id: state.id, url: '' });
-        await deleteFile({ userId: state.userId, id: state.id });
+        await updateTweet({ tweetId: state.tweetId, photo: '' });
+        await deleteFile({ userId: state.userId, tweetId: state.tweetId });
       }
 
       if (file) {
         const result = await fileUpload({
-          docId: state.id,
+          docId: state.tweetId,
           file,
           userId: state.userId,
           username: state.username,
         });
         const url = await getFileURL(result.ref);
-        await addOrUpdatePhotoToTweet({ id: state.id, url });
+        await updateTweet({ tweetId: state.tweetId, photo: url });
       }
 
       navigate(-1);
@@ -268,10 +282,12 @@ export default function EditTweetForm() {
         </FormHeader>
         <FormBody>
           <div>
-            <Avatar
-              name={user?.displayName?.slice(0, 1) ?? 'A'}
-              src={user?.photoURL}
-            />
+            <figure>
+              <Avatar
+                name={user?.displayName?.slice(0, 1) ?? 'A'}
+                src={user?.photoURL}
+              />
+            </figure>
             <select>
               <option value='all'>모든사람</option>
             </select>

@@ -3,7 +3,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components';
 import reset from 'styled-reset';
 import { auth } from './api/firebase';
-import { Layout, LoadingScreen } from './components/index';
+import { Layout, LoadingScreen, ProtectedRoute } from './components/index';
 import {
   Home,
   Login,
@@ -64,6 +64,10 @@ const router = createBrowserRouter(
                 {
                   path: 'post',
                   element: <PostTweetForm />,
+                },
+                {
+                  path: 'edit',
+                  element: <EditTweetForm />,
                 },
               ],
             },

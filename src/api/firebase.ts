@@ -13,12 +13,10 @@ import {
   User as FirebaseUser,
 } from 'firebase/auth';
 import {
-  DocumentReference,
   addDoc,
   collection,
   deleteDoc,
   doc,
-  getDocs,
   getFirestore,
   limit,
   onSnapshot,
@@ -136,8 +134,32 @@ export const avatarUpload = async ({
   userId: string;
   file: File;
 }) => {
-  const locationRef = ref(storage, `avatars/${userId}`);
+  const locationRef = ref(storage, `user-avatars/${userId}`);
   return await uploadBytes(locationRef, file);
+};
+
+export const bgUpload = async ({
+  userId,
+  file,
+}: {
+  userId: string;
+  file: File;
+}) => {
+  const locationRef = ref(storage, `user-bgs/${userId}`);
+  return await uploadBytes(locationRef, file);
+};
+
+export const getBGURL = async ({
+  userId,
+  callback,
+}: {
+  userId: string | undefined;
+  callback: React.Dispatch<React.SetStateAction<string | null>>;
+}) => {
+  if (!userId) return;
+  const locationRef = ref(storage, `user-bgs/${userId}`);
+  const URL = await getDownloadURL(locationRef);
+  callback(URL);
 };
 
 export const getFileURL = async (ref: StorageReference) => {
@@ -146,12 +168,12 @@ export const getFileURL = async (ref: StorageReference) => {
 
 export const deleteFile = async ({
   userId,
-  id,
+  tweetId,
 }: {
   userId: string;
-  id: string;
+  tweetId: string;
 }) => {
-  const photoRef = ref(storage, `tweets/${userId}/${id}`);
+  const photoRef = ref(storage, `tweets/${userId}/${tweetId}`);
   await deleteObject(photoRef);
 };
 
@@ -162,38 +184,20 @@ export const createTweet = async (tweet: ITweet) => {
   return await addDoc(collection(database, 'tweets'), tweet);
 };
 
-export const addOrUpdatePhotoToTweet = async ({
-  docRef,
-  url,
-  id,
-}: {
-  docRef?: DocumentReference;
-  url: string;
-  id?: string;
-}) => {
-  if (docRef) {
-    await updateDoc(docRef, {
-      photo: url,
-    });
-  } else if (id) {
-    await updateDoc(doc(database, 'tweets', id), {
-      photo: url,
-    });
-  }
-};
-
 export const updateTweet = async ({
   tweetId,
   tweet,
   createdAt,
   username,
   photo,
+  avatar,
 }: {
   tweetId: string;
   tweet?: string;
   createdAt?: number;
   username?: string;
   photo?: string;
+  avatar?: string;
 }) => {
   if (!tweetId) return;
   if (tweet && createdAt) {
@@ -207,9 +211,15 @@ export const updateTweet = async ({
       username,
     });
   }
-  if (photo) {
+  if (photo && createdAt) {
     await updateDoc(doc(database, 'tweets', tweetId), {
       photo,
+      createdAt,
+    });
+  }
+  if (avatar) {
+    await updateDoc(doc(database, 'tweets', tweetId), {
+      avatar,
     });
   }
 };
@@ -218,9 +228,13 @@ export const deleteTweet = async (tweetId: string) => {
   await deleteDoc(doc(database, 'tweets', tweetId));
 };
 
-export const fetchTweets = async (
-  callback: React.Dispatch<React.SetStateAction<ITweet[]>>
-) => {
+export const fetchTweets = async ({
+  callback1,
+  callback2,
+}: {
+  callback1: React.Dispatch<React.SetStateAction<ITweet[]>>;
+  callback2: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const tweetsQuery = query(
     collection(database, 'tweets'),
     orderBy('createdAt', 'desc'),
@@ -238,11 +252,20 @@ export const fetchTweets = async (
   // 실시간으로 변경됨
   const unsubscribe = onSnapshot(tweetsQuery, (snapshot) => {
     const tweets = snapshot.docs.map((doc) => {
-      const { tweet, createdAt, userId, username, photo } = doc.data();
-      return { tweet, createdAt, userId, username, photo, id: doc.id };
+      const { tweet, createdAt, userId, username, photo, avatar } = doc.data();
+      return {
+        tweet,
+        createdAt,
+        userId,
+        username,
+        photo,
+        tweetId: doc.id,
+        avatar,
+      };
     });
 
-    callback(tweets);
+    callback1(tweets);
+    callback2(false);
   });
 
   return unsubscribe;
@@ -250,25 +273,54 @@ export const fetchTweets = async (
 
 export const fetchMyTweets = async ({
   userId,
-  callback,
+  callback1,
+  callback2,
 }: {
   userId: string | undefined;
-  callback: React.Dispatch<React.SetStateAction<ITweet[] | undefined>>;
+  callback1: React.Dispatch<React.SetStateAction<ITweet[] | undefined>>;
+  callback2: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   if (!userId) return;
-  const tweetQuery = query(
+  const tweetsQuery = query(
     collection(database, 'tweets'),
     where('userId', '==', userId),
     orderBy('createdAt', 'desc'),
     limit(25)
   );
 
-  const snapshot = await getDocs(tweetQuery);
-  console.log(snapshot);
-  const tweets: ITweet[] = snapshot.docs.map((doc) => {
-    const { tweet, createdAt, userId, username, photo } = doc.data();
-    return { tweet, createdAt, userId, username, photo, id: doc.id };
+  // const snapshot = await getDocs(tweetQuery);
+  // const tweets: ITweet[] = snapshot.docs.map((doc) => {
+  //   const { tweet, createdAt, userId, username, photo, avatar } = doc.data();
+  //   return {
+  //     tweet,
+  //     createdAt,
+  //     userId,
+  //     username,
+  //     photo,
+  //     tweetId: doc.id,
+  //     avatar,
+  //   };
+  // });
+
+  // callback(tweets);
+
+  const unsubscribe = onSnapshot(tweetsQuery, (snapshot) => {
+    const tweets = snapshot.docs.map((doc) => {
+      const { tweet, createdAt, userId, username, photo, avatar } = doc.data();
+      return {
+        tweet,
+        createdAt,
+        userId,
+        username,
+        photo,
+        tweetId: doc.id,
+        avatar,
+      };
+    });
+
+    callback1(tweets);
+    callback2(false);
   });
 
-  callback(tweets);
+  return unsubscribe;
 };

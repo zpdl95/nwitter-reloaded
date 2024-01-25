@@ -16,6 +16,12 @@ const List = styled.li`
   border-style: solid;
   border-color: var(--shadow-d-color);
   border-collapse: collapse;
+
+  & > figure {
+    flex-shrink: 0;
+    width: 2.7rem;
+    height: 2.7rem;
+  }
 `;
 
 const ListSection = styled.section`
@@ -102,7 +108,8 @@ export default function Tweet({
   tweet,
   createdAt,
   photo,
-  id,
+  tweetId,
+  avatar,
 }: ITweet) {
   const [isOpenOption, setOpenOption] = useState(false);
   const { user } = useAuthContext();
@@ -119,11 +126,15 @@ export default function Tweet({
     e.stopPropagation();
     const target = e.target as HTMLUListElement;
 
-    if (target.matches('.delete') && user?.uid === userId && id !== undefined) {
+    if (
+      target.matches('.delete') &&
+      user?.uid === userId &&
+      tweetId !== undefined
+    ) {
       try {
-        await deleteTweet(id);
+        await deleteTweet(tweetId);
         if (photo) {
-          await deleteFile({ userId: user.uid, id });
+          await deleteFile({ userId: user.uid, tweetId });
         }
       } catch (error) {
         console.error(error);
@@ -138,21 +149,22 @@ export default function Tweet({
           tweet,
           createdAt,
           photo,
-          id,
+          tweetId,
         },
       });
       setOpenOption((prev) => !prev);
     }
   };
+
   return (
     <List>
       <figure>
-        <Avatar name={username[0]} src={user?.photoURL} />
+        <Avatar name={username[0]} src={avatar} />
       </figure>
       <ListSection>
         <header>
           <div>
-            <h3>{user?.displayName}</h3>
+            <h3>{username}</h3>
             <HiShieldCheck />
             <span>{userId.slice(0, 8)}</span>
             <span>·</span>
@@ -161,7 +173,7 @@ export default function Tweet({
               {new Date(createdAt).getDate()}일
             </span>
           </div>
-          {user?.uid === userId && (
+          {user?.uid === userId ? (
             <div className='option' onClick={onOpenOption}>
               <HiOutlineDotsHorizontal />
               {isOpenOption && (
@@ -171,6 +183,8 @@ export default function Tweet({
                 </ul>
               )}
             </div>
+          ) : (
+            <div style={{ visibility: 'hidden' }}></div>
           )}
         </header>
         <p>{tweet}</p>

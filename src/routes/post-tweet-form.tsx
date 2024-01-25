@@ -8,7 +8,7 @@ import {
   createTweet,
   fileUpload,
   getFileURL,
-  addOrUpdatePhotoToTweet,
+  updateTweet,
 } from '../api/firebase';
 import { useAuthContext } from '../context/auth-context';
 
@@ -65,10 +65,15 @@ const FormBody = styled.section`
   flex-direction: column;
   padding: 0 0.5rem;
 
-  div {
+  & > div {
     display: flex;
     align-items: start;
     gap: 1rem;
+
+    & > figure {
+      width: 2.7rem;
+      height: 2.7rem;
+    }
 
     select {
       background: transparent;
@@ -102,7 +107,7 @@ const FormBody = styled.section`
     }
   }
 
-  figure {
+  & > figure {
     border-radius: 1.5rem;
     overflow: hidden;
     margin-left: 3rem;
@@ -169,6 +174,10 @@ const FormFooter = styled.footer`
   button {
     ${btnStyle}
     background: var(--accent-color);
+
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 `;
 
@@ -192,7 +201,6 @@ export default function PostTweetForm() {
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
-    console.log(file);
 
     if (!files || files.length !== 1) return;
     if (files[0].size > 1048576) {
@@ -224,6 +232,7 @@ export default function PostTweetForm() {
         createdAt: Date.now(),
         username: user.displayName || 'Anonymous',
         userId: user.uid,
+        avatar: user.photoURL ?? '',
       });
 
       if (file) {
@@ -234,7 +243,11 @@ export default function PostTweetForm() {
           username: user.displayName || 'Anonymous',
         });
         const url = await getFileURL(result.ref);
-        await addOrUpdatePhotoToTweet({ docRef: doc, url });
+        await updateTweet({
+          tweetId: doc.id,
+          photo: url,
+          createdAt: Date.now(),
+        });
       }
 
       navigate(-1);
@@ -261,10 +274,12 @@ export default function PostTweetForm() {
         </FormHeader>
         <FormBody>
           <div>
-            <Avatar
-              name={user?.displayName?.slice(0, 1) ?? 'A'}
-              src={user?.photoURL}
-            />
+            <figure>
+              <Avatar
+                name={user?.displayName?.slice(0, 1) ?? 'A'}
+                src={user?.photoURL}
+              />
+            </figure>
             <select>
               <option value='all'>모든사람</option>
             </select>

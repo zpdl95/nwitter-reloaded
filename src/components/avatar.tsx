@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 const Figure = styled.figure`
-  width: 2.7rem;
-  height: 2.7rem;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   overflow: hidden;
 

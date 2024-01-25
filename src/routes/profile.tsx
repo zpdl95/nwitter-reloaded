@@ -1,13 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { btnStyle } from './home';
 import { CiEdit } from 'react-icons/ci';
-import { FaArrowLeft, FaUser } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 import { IoCalendarSharp } from 'react-icons/io5';
 import { useAuthContext } from '../context/auth-context';
 import {
   avatarUpload,
+  bgUpload,
   fetchMyTweets,
+  getBGURL,
   getFileURL,
   updateTweet,
   updateUserProfile,
@@ -15,6 +17,8 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { ITweet } from '../components/timeline';
 import Tweet from '../components/tweet';
+import { Avatar, Loader } from '../components';
+import Logo from '../../public/z-icon.svg?react';
 
 const Header = styled.header`
   background: transparent;
@@ -66,26 +70,32 @@ const Article = styled.article`
 
   & > section:first-of-type {
     flex: 1;
-    background: var(--shadow-d-color);
   }
 
   & > section:last-of-type {
     flex: 1.3;
-    background: transparent;
   }
+`;
+
+const BGSection = styled.section<{ bg: string | null }>`
+  background: ${(props) =>
+    props.bg ? `url(${props.bg})` : `var(--shadow-d-color)`};
+  background-position: center;
+  background-size: cover;
 `;
 
 const ProfileSection = styled.section`
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  background: transparent;
 
   header {
     display: flex;
     justify-content: flex-end;
     position: relative;
 
-    figure {
+    & > figure {
       position: absolute;
       left: 0;
       transform: translate(0, -50%);
@@ -113,28 +123,20 @@ const ProfileSection = styled.section`
         input {
           display: none;
         }
-
-        svg {
-          font-size: 4vw;
-        }
-
-        img {
-          height: 100%;
-          width: 100%;
-          object-fit: cover;
-        }
       }
     }
 
-    & > button {
-      ${btnStyle}
-      background: transparent;
-      border: 1px solid var(--shadow-d-color);
+    & > div {
+      & > button {
+        ${btnStyle}
+        background: transparent;
+        border: 1px solid var(--shadow-d-color);
 
-      color: var(--font-color);
-      font-size: 1rem;
+        color: var(--font-color);
+        font-size: 1rem;
 
-      margin: 0.5rem 1rem;
+        margin: 0.5rem 1rem;
+      }
     }
   }
 `;
@@ -157,7 +159,6 @@ const ProfileSectionMain = styled.main`
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      position: relative;
 
       h3 {
         font-size: 1.2rem;
@@ -165,62 +166,25 @@ const ProfileSectionMain = styled.main`
         color: var(--font-color);
       }
 
-      & > button {
-        background: transparent;
-        border: none;
-        border-radius: 50%;
-        color: var(--accent-color);
-        font-size: 1.5rem;
-        cursor: pointer;
+      & > div {
+        position: relative;
+        & > button {
+          background: transparent;
+          border: none;
+          border-radius: 50%;
+          color: var(--accent-color);
+          font-size: 1.5rem;
+          cursor: pointer;
 
-        display: flex;
-        align-items: center;
-
-        &:hover {
-          background: var(--accent-color-50);
-        }
-      }
-
-      dialog {
-        left: 100px;
-        top: 0;
-
-        padding: 1rem;
-        border-radius: 1rem;
-        background: var(--main-color);
-
-        form {
           display: flex;
-          flex-direction: column;
-          gap: 1rem;
+          align-items: center;
+          position: relative;
 
-          input {
-            outline: none;
-            border: none;
-            font-size: 1rem;
-            color: var(--font-color);
-            background: var(--shadow-color);
-            padding: 0.3rem;
-          }
-
-          div {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.1rem;
-
-            button {
-              ${btnStyle}
-
-              &[value='confirm'] {
-                background: var(--accent-color);
-              }
-            }
+          &:hover {
+            background: var(--accent-color-50);
           }
         }
       }
-    }
-
-    p {
     }
   }
 
@@ -285,13 +249,232 @@ const ProfileUl = styled.ul`
   }
 `;
 
+const Ul = styled.ul`
+  & > div {
+    display: flex;
+    justify-content: center;
+    margin-top: 10%;
+  }
+`;
+
+const NameEditDialog = styled.dialog`
+  left: 0;
+  top: 0;
+
+  cursor: auto;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--main-color);
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    input {
+      outline: none;
+      border: none;
+      font-size: 1rem;
+      color: var(--font-color);
+      background: var(--shadow-color);
+      padding: 0.3rem;
+    }
+
+    div {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.1rem;
+
+      button {
+        ${btnStyle}
+
+        &[value='confirm'] {
+          background: var(--accent-color);
+        }
+      }
+    }
+  }
+`;
+
+const ImageEditDialog = styled.dialog`
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+      display: none;
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+      display: block;
+    }
+  }
+  @keyframes fade-out {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+      display: block;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0);
+      display: none;
+    }
+  }
+
+  width: max(450px, 30%);
+  height: 70%;
+  border-radius: 0.5rem;
+  background: var(--main-color);
+  border: none;
+  margin: auto;
+
+  z-index: 10;
+
+  /* animation: fade-out 0.3s ease-in-out; */
+
+  &[open] {
+    /* animation: fade-in 0.3s ease-in-out; */
+  }
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+
+    /* animation: backdrop-fade-in 0.3s ease-in-out forwards; */
+
+    @keyframes backdrop-fade-in {
+      0% {
+        background: rgba(0, 0, 0, 0);
+      }
+      100% {
+        background: rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+
+  & > form {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+
+    & > header {
+      display: flex;
+      flex-direction: column;
+
+      svg {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin: 0 auto 1.5rem;
+      }
+
+      h2 {
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: var(--font-color);
+        margin-left: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      h3 {
+        margin-left: 3rem;
+        color: var(--shadow-d-color);
+        font-weight: 600;
+      }
+
+      button {
+        border: none;
+        outline: none;
+        background: transparent;
+        color: var(--font-color);
+        font-size: 1.2rem;
+        cursor: pointer;
+
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+    }
+
+    & > footer {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      margin: 0 10%;
+      gap: 0.5rem;
+
+      button,
+      label {
+        ${btnStyle}
+        padding:1rem;
+        flex: 1;
+        background: var(--main-color);
+        border: 1px solid var(--shadow-d-color);
+        color: var(--font-color);
+        font-size: 1rem;
+
+        &[value='confirm'] {
+          background: var(--accent-color);
+          color: black;
+          border-color: transparent;
+        }
+        &[value='close'] {
+          background: var(--shadow-color);
+          border-color: transparent;
+        }
+      }
+
+      label {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        input {
+          display: none;
+        }
+      }
+
+      & > div {
+        display: flex;
+        gap: 0.5rem;
+      }
+    }
+  }
+`;
+
+const ImageEditDialogFig = styled.figure<{ bg: string | null }>`
+  background: ${(props) =>
+    props.bg ? `url(${props.bg})` : `var(--shadow-d-color)`};
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+
+  & > div {
+    width: 35%;
+    aspect-ratio: 1/1;
+    border: 2px solid var(--font-color);
+    border-radius: 50%;
+  }
+`;
+
 export default function Profile() {
   const { user } = useAuthContext();
   const [avatar, setAvatar] = useState(user?.photoURL);
+  const [userBG, setUserBG] = useState<string | null>('');
   const [username, setUsername] = useState(user?.displayName);
   const [changename, setChangename] = useState(username);
   const [myTweets, setMyTweets] = useState<ITweet[]>();
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [isLoading, setLoading] = useState(true);
+  const namedialogRef = useRef<HTMLDialogElement>(null);
+  const imagedialogRef = useRef<HTMLDialogElement>(null);
+  const [dialogAvatar, setDialogAvatar] = useState(avatar);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [dialogBG, setDialogBG] = useState<string | null>(null);
+  const [bgFile, setBGFile] = useState<File | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -299,7 +482,12 @@ export default function Profile() {
     setUsername(user?.displayName);
     fetchMyTweets({
       userId: user?.uid,
-      callback: setMyTweets,
+      callback1: setMyTweets,
+      callback2: setLoading,
+    });
+    getBGURL({
+      userId: user?.uid,
+      callback: setUserBG,
     });
   }, [user]);
 
@@ -310,13 +498,17 @@ export default function Profile() {
       const result = await avatarUpload({ userId: user.uid, file });
       const avatarURL = await getFileURL(result.ref);
       await updateUserProfile(undefined, avatarURL);
+      myTweets?.forEach(async (tweet) => {
+        if (!tweet.tweetId) return;
+        await updateTweet({ tweetId: tweet.tweetId, avatar: avatarURL });
+      });
       setAvatar(avatarURL);
     }
   };
 
-  const onNameEdit = () => {
+  const onNameEditClick = () => {
     setChangename(username);
-    dialogRef.current?.show();
+    namedialogRef.current?.show();
   };
 
   const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -326,8 +518,8 @@ export default function Profile() {
     setChangename(value);
   };
 
-  const onDialogClose = async () => {
-    if (dialogRef.current?.returnValue === 'close') {
+  const onNameEditClose = async () => {
+    if (namedialogRef.current?.returnValue === 'close') {
       console.log('close');
     } else {
       if (!changename) return;
@@ -335,11 +527,74 @@ export default function Profile() {
       if (confirm(`정말 ${changename}으로 바꾸시겠습니까?`)) {
         await updateUserProfile(changename);
         myTweets?.forEach(async (tweet) => {
-          if (!tweet.id) return;
-          await updateTweet({ tweetId: tweet.id, username: changename });
+          if (!tweet.tweetId) return;
+          await updateTweet({ tweetId: tweet.tweetId, username: changename });
         });
         setUsername(changename);
       }
+    }
+  };
+
+  const onImgEditClick = () => {
+    imagedialogRef.current?.showModal();
+  };
+
+  const onImgEditCloseClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    const target = e.target as HTMLDialogElement;
+    if (target.nodeName === 'DIALOG') {
+      imagedialogRef.current?.close('close');
+    }
+  };
+
+  const onImgEditClose = async () => {
+    if (imagedialogRef.current?.returnValue === 'close') {
+      setDialogAvatar(null);
+      setAvatarFile(null);
+      setDialogBG(null);
+      setBGFile(null);
+    } else {
+      if (avatarFile && user) {
+        const result = await avatarUpload({
+          userId: user.uid,
+          file: avatarFile,
+        });
+        const avatarURL = await getFileURL(result.ref);
+        await updateUserProfile(undefined, avatarURL);
+        myTweets?.forEach(async (tweet) => {
+          if (!tweet.tweetId) return;
+          await updateTweet({ tweetId: tweet.tweetId, avatar: avatarURL });
+        });
+        setAvatar(avatarURL);
+      }
+      if (bgFile && user) {
+        const result = await bgUpload({
+          userId: user.uid,
+          file: bgFile,
+        });
+        const bgURL = await getFileURL(result.ref);
+        setUserBG(bgURL);
+      }
+    }
+  };
+
+  const onDialogAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.target;
+    if (files && files.length === 1) {
+      const file = files[0];
+      const fileURL = URL.createObjectURL(file);
+      setDialogAvatar(fileURL);
+      setAvatarFile(file);
+    }
+  };
+
+  const onDialogBGChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.target;
+
+    if (files && files.length === 1) {
+      const file = files[0];
+      const fileURL = URL.createObjectURL(file);
+      setDialogBG(fileURL);
+      setBGFile(file);
     }
   };
 
@@ -354,31 +609,82 @@ export default function Profile() {
           <FaArrowLeft />
         </div>
         <div>
-          <h3>{user?.displayName ?? 'Anonymous'}</h3>
+          <h3>{username ?? 'Anonymous'}</h3>
           <p>{myTweets?.length} 게시물</p>
         </div>
       </Header>
       <Article>
-        <section></section>
+        <BGSection bg={userBG}></BGSection>
         <ProfileSection>
           <header>
             <figure>
               <label>
-                {avatar ? <img src={avatar} /> : <FaUser />}
+                <Avatar
+                  name={username?.slice(0, 1) ?? 'Anonymous'}
+                  src={avatar}
+                />
                 <input type='file' accept='image/*' onChange={onAvatarChange} />
               </label>
             </figure>
-            <button style={{ visibility: 'hidden' }}>프로필 설정하기</button>
+            <div>
+              <button onClick={onImgEditClick}>프로필 설정하기</button>
+              <ImageEditDialog
+                ref={imagedialogRef}
+                onClick={onImgEditCloseClick}
+                onClose={onImgEditClose}
+              >
+                <form method='dialog'>
+                  <header>
+                    <Logo />
+                    <h2>사진 선택하기</h2>
+                    <h3>
+                      마음에 드는 셀카, 사진이 있나요? 지금 업로드 하세요.
+                    </h3>
+                    <button value={'close'}>&#10006;</button>
+                  </header>
+                  <ImageEditDialogFig bg={dialogBG || userBG}>
+                    <div>
+                      <Avatar
+                        name={username?.slice(0, 1) ?? 'Anonymous'}
+                        src={dialogAvatar || avatar}
+                      />
+                    </div>
+                  </ImageEditDialogFig>
+                  <footer>
+                    <label>
+                      프로필 사진 선택하기
+                      <input
+                        type='file'
+                        accept='image/*'
+                        onChange={onDialogAvatarChange}
+                      />
+                    </label>
+                    <label>
+                      배경 이미지 선택하기
+                      <input
+                        type='file'
+                        accept='image/*'
+                        onChange={onDialogBGChange}
+                      />
+                    </label>
+                    <div>
+                      <button value={'close'}>지금은 넘어가기</button>
+                      <button value={'confirm'}>변경하기</button>
+                    </div>
+                  </footer>
+                </form>
+              </ImageEditDialog>
+            </div>
           </header>
           <ProfileSectionMain>
             <section>
               <div>
-                <h3>{user?.displayName ?? 'Anonymous'}</h3>
-                <button onClick={onNameEdit}>
-                  <CiEdit />
-                </button>
-                {username && (
-                  <dialog ref={dialogRef} onClose={onDialogClose}>
+                <h3>{username ?? 'Anonymous'}</h3>
+                <div>
+                  <button onClick={onNameEditClick}>
+                    <CiEdit />
+                  </button>
+                  <NameEditDialog ref={namedialogRef} onClose={onNameEditClose}>
                     <form method='dialog'>
                       <input
                         type='text'
@@ -390,8 +696,8 @@ export default function Profile() {
                         <button value='confirm'>변경</button>
                       </div>
                     </form>
-                  </dialog>
-                )}
+                  </NameEditDialog>
+                </div>
               </div>
               <p>@{user ? user.uid.slice(0, 8) : '00000000'}</p>
             </section>
@@ -459,11 +765,16 @@ export default function Profile() {
           </ProfileUl>
         </ProfileSection>
       </Article>
-      <ul>
-        {myTweets?.map((tweet) => (
-          <Tweet key={tweet.id} {...tweet} />
-        ))}
-      </ul>
+      <Ul>
+        {!isLoading ? (
+          myTweets?.map((tweet) => <Tweet key={tweet.tweetId} {...tweet} />)
+        ) : (
+          <div>
+            <Loader />
+          </div>
+        )}
+      </Ul>
+      <Outlet />
     </>
   );
 }
