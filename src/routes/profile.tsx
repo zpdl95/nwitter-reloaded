@@ -630,7 +630,7 @@ export default function Profile() {
               <button onClick={onImgEditClick}>프로필 설정하기</button>
               <ImageEditDialog
                 ref={imagedialogRef}
-                onClick={onImgEditCloseClick}
+                onMouseDown={onImgEditCloseClick}
                 onClose={onImgEditClose}
               >
                 <form method='dialog'>

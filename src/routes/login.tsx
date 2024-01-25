@@ -202,7 +202,7 @@ export default function Login() {
   };
 
   return (
-    <Wrapper className='close' onClick={onClick}>
+    <Wrapper className='close' onMouseDown={onClick}>
       <Article>
         <header>
           <h1>

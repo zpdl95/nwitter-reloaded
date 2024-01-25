@@ -279,7 +279,7 @@ export default function EditTweetForm() {
   };
 
   return (
-    <Wrapper className='close' onClick={onClose}>
+    <Wrapper className='close' onMouseDown={onClose}>
       <Form onSubmit={onSubmit}>
         <FormHeader>
           <h1>트윗 수정</h1>

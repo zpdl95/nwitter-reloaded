@@ -264,7 +264,7 @@ export default function PostTweetForm() {
   };
 
   return (
-    <Wrapper className='close' onClick={onClose}>
+    <Wrapper className='close' onMouseDown={onClose}>
       <Form onSubmit={onSubmit}>
         <FormHeader>
           <h1>새 트윗 작성</h1>

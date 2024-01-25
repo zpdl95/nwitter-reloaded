@@ -272,7 +272,7 @@ export default function Signup() {
   };
 
   return (
-    <Wrapper className='close' onClick={onClick}>
+    <Wrapper className='close' onMouseDown={onClick}>
       <Article>
         <header>
           <h1>계정을 생성하세요</h1>
