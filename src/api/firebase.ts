@@ -190,6 +190,14 @@ export const createTweet = async (tweet: ITweet) => {
   return await addDoc(collection(database, 'tweets'), tweet);
 };
 
+/**
+ * 트윗의 데이터를 업데이트함
+ * @example
+ * updateTweet({tweetId, tweet, createdAt})
+ * updateTweet({tweetId, photo, createdAt})
+ * updateTweet({tweetId, username})
+ * updateTweet({tweetId, avatar})
+ */
 export const updateTweet = async ({
   tweetId,
   tweet,

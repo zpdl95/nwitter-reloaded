@@ -109,18 +109,20 @@ const FormBody = styled.section`
 
   & > figure {
     border-radius: 1.5rem;
+    box-shadow: inset 0 0 10px var(--accent-color);
     overflow: hidden;
     margin-left: 3rem;
     margin-bottom: 1rem;
-    max-height: 24rem;
 
-    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
 
+    position: relative;
+
     img {
       object-fit: cover;
+      max-height: 25rem;
     }
 
     button {
@@ -292,6 +294,7 @@ export default function PostTweetForm() {
             value={tweet}
             onInput={onInput}
             onChange={onChange}
+            autoFocus
           />
           {fileURL && (
             <figure>

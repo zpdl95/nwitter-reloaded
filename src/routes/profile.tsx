@@ -260,6 +260,7 @@ const Ul = styled.ul`
 const NameEditDialog = styled.dialog`
   left: 0;
   top: 0;
+  z-index: 10;
 
   cursor: auto;
   padding: 1rem;
@@ -278,6 +279,11 @@ const NameEditDialog = styled.dialog`
       color: var(--font-color);
       background: var(--shadow-color);
       padding: 0.3rem;
+    }
+
+    p {
+      color: red;
+      font-size: 0.8rem;
     }
 
     div {
@@ -467,6 +473,7 @@ export default function Profile() {
   const [userBG, setUserBG] = useState<string | null>('');
   const [username, setUsername] = useState(user?.displayName);
   const [changename, setChangename] = useState(username);
+  const [changenameError, setChangenameError] = useState('');
   const [myTweets, setMyTweets] = useState<ITweet[]>();
   const [isLoading, setLoading] = useState(true);
   const namedialogRef = useRef<HTMLDialogElement>(null);
@@ -516,14 +523,23 @@ export default function Profile() {
       target: { value },
     } = e;
     setChangename(value);
+    if (3 > value.length || value.length > 8) {
+      setChangenameError('글자 수가 3글자 이상 8글자 이하여야 합니다.');
+    } else {
+      setChangenameError('');
+    }
   };
 
   const onNameEditClose = async () => {
     if (namedialogRef.current?.returnValue === 'close') {
-      console.log('close');
+      setChangenameError('');
     } else {
       if (!changename) return;
       if (username === changename) return;
+      if (3 > changename.length || changename.length > 8) {
+        setChangenameError('');
+        return;
+      }
       if (confirm(`정말 ${changename}으로 바꾸시겠습니까?`)) {
         await updateUserProfile(changename);
         myTweets?.forEach(async (tweet) => {
@@ -691,6 +707,7 @@ export default function Profile() {
                         value={changename ?? ''}
                         onChange={onNameChange}
                       />
+                      <p>{changenameError}</p>
                       <div>
                         <button value='close'>취소</button>
                         <button value='confirm'>변경</button>

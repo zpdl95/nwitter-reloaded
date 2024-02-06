@@ -247,9 +247,6 @@ export default function Signup() {
 
     try {
       setLoading(true);
-      // create account
-      // set the name of the user
-      // redirect to the main page
       await createAccount(formData.email, formData.password);
       await updateUserProfile(formData.name);
       navigate('/main', {
@@ -267,7 +264,7 @@ export default function Signup() {
   const onClick = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
     const target = e.target as HTMLDivElement | HTMLButtonElement;
     if (target.matches('.close')) {
-      navigate(-1);
+      navigate('/');
     }
   };
 

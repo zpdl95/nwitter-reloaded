@@ -26,7 +26,6 @@ const List = styled.li`
 
 const ListSection = styled.section`
   flex: 1;
-
   header {
     display: flex;
     justify-content: space-between;
@@ -91,14 +90,21 @@ const ListSection = styled.section`
     }
   }
 
-  p {
+  & > pre {
     color: var(--font-color);
     padding: 1rem 0.3rem;
   }
 
-  figure {
+  & > figure {
+    display: flex;
+    justify-content: center;
+
     border-radius: 1.5rem;
     overflow: hidden;
+
+    & > img {
+      max-height: 20rem;
+    }
   }
 `;
 
@@ -132,6 +138,7 @@ export default function Tweet({
       tweetId !== undefined
     ) {
       try {
+        if (!confirm('정말 "삭제" 하시겠습니까?')) return;
         await deleteTweet(tweetId);
         if (photo) {
           await deleteFile({ userId: user.uid, tweetId });
@@ -187,7 +194,7 @@ export default function Tweet({
             <div style={{ visibility: 'hidden' }}></div>
           )}
         </header>
-        <p>{tweet}</p>
+        <pre>{tweet}</pre>
         {photo && (
           <figure>
             <img src={photo} />

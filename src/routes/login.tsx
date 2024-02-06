@@ -197,7 +197,7 @@ export default function Login() {
   const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLDivElement;
     if (target.matches('.close')) {
-      navigate(-1);
+      navigate('/');
     }
   };
 
