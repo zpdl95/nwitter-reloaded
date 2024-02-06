@@ -10,6 +10,8 @@
 
 ### 트위터 사이트를 제가 좋아하는 보라색 계열로 만들어 봤습니다.
 
+### 배포된 앱 [URL](nwitter-reloaded-9a028.firebaseapp.com)
+
 ## 첫 화면
 
 ![첫화면](./READMD/첫-화면.png)
